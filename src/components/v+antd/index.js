@@ -3,7 +3,7 @@ import Tooltip from "./tooltip";
 import { Row, Col } from "./grid";
 import Table from "./table";
 import TimePicker from "./time-picker";
-import DateTime from "antd/es/date-picker";
+import DatePicker from "antd/es/date-picker";
 import message from "./message";
 import Input from "./input";
 import TreeSelect from "./tree-select";
@@ -17,7 +17,7 @@ export {
     Col,
     Table,
     TimePicker,
-    DateTime,
+    DatePicker,
     message,
     Input,
     Spin,
