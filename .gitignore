@@ -348,3 +348,14 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+.vscode/
+.vscode
+
+# any dump files
+*.dump
+
+# anything with 4 undescore
+____*
+____/
+____/*
