@@ -1,0 +1,30 @@
+{
+    "compilerOptions": {
+        "baseUrl": "src/",
+        "target": "es6",
+        "lib": ["dom", "dom.iterable", "esnext"],
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "module": "System",
+        "moduleResolution": "node",
+        "isolatedModules": true,
+        "resolveJsonModule": true,
+        "noEmit": true,
+        "jsx": "react",
+        "declaration": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true,
+        "sourceMap": true,
+        "inlineSourceMap": true,
+        "inlineSources": true,
+        "paths": {
+            "components/*": ["src/components/*"]
+        }
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules"]
+}
