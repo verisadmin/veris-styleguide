@@ -21,6 +21,12 @@ import DateRangeOutlinedIcon from "@material-ui/icons/DateRangeOutlined";
 import ScheduleOutlinedIcon from "@material-ui/icons/ScheduleOutlined";
 import BlockIcon from "@material-ui/icons/Block";
 
+import ContactsOutlinedIcon from '@material-ui/icons/ContactsOutlined';
+import LineStyleOutlinedIcon from '@material-ui/icons/LineStyleOutlined';
+import SupervisedUserCircleOutlinedIcon from '@material-ui/icons/SupervisedUserCircleOutlined';
+import SettingsOutlinedIcon from '@material-ui/icons/SettingsOutlined';
+import FreeBreakfastOutlinedIcon from '@material-ui/icons/FreeBreakfastOutlined';
+
 import { CleaningSparyIcon } from "./cleaningSpray";
 import { VenueLocationIcon } from "./venueLocation";
 import {
@@ -81,6 +87,12 @@ const ViewIcon = VisibilityOutlinedIcon;
 const BookingIcon = CollectionsBookmarkOutlinedIcon;
 const InfoIcon = InfoOutlinedIcon;
 const NotAllowedIcon = BlockIcon;
+const VMSIcon = ContactsOutlinedIcon;
+const MRMIcon = EventAvailableOutlinedIcon;
+const GENAppIcon = LineStyleOutlinedIcon;
+const DEFAULTAppIcon = SupervisedUserCircleOutlinedIcon;
+const SettingsAppIcon = SettingsOutlinedIcon;
+const CoffeeAppIcon = FreeBreakfastOutlinedIcon;
 
 export {
     getAmenityIconbyLabel,
@@ -109,4 +121,10 @@ export {
     BookingIcon,
     InfoIcon,
     NotAllowedIcon,
+    VMSIcon,
+    MRMIcon,
+    GENAppIcon,
+    DEFAULTAppIcon,
+    SettingsAppIcon,
+    CoffeeAppIcon
 };
