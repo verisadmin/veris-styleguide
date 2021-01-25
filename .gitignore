@@ -366,3 +366,8 @@ node_modules/
 node_modules/*
 
 .env-cmdrc
+
+build/
+build/*
+dist/
+dist/*

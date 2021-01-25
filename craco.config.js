@@ -178,7 +178,7 @@ module.exports = {
                         env === "production" ||
                         webpackConfig.mode === "production"
                     ) {
-                        webpackConfig.output.publicPath = "/apps/meeting-room/";
+                        webpackConfig.output.publicPath = `/apps/${APP_NAME}/`;
                     }
 
                     // https://github.com/single-spa/single-spa/issues/387
