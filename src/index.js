@@ -13,6 +13,7 @@ import "./index.css";
 
 import App from "./App";
 
+const isEnvProduction = process.env.NODE_ENV === "production";
 const staticBase = process.env.ASSET_PATH + "static/css/";
 // TODO: explore __webpack_public_path__ mechanism
 // https://github.com/joeldenning/snowpack-single-spa-example/blob/c6e659ea410c87442227abe5cc39cdd05cdb4856/index.js
@@ -38,11 +39,17 @@ const reactLifecycles = singleSpaReact({
     },
 });
 
-export const bootstrap = [cssLifecycles.bootstrap, reactLifecycles.bootstrap];
+const bootstrap = isEnvProduction
+    ? [cssLifecycles.bootstrap, reactLifecycles.bootstrap]
+    : [reactLifecycles.bootstrap];
+const mount = isEnvProduction
+    ? [cssLifecycles.mount, reactLifecycles.mount]
+    : [reactLifecycles.mount];
+const unmount = isEnvProduction
+    ? [cssLifecycles.unmount, reactLifecycles.unmount]
+    : [reactLifecycles.unmount];
 
-export const mount = [cssLifecycles.mount, reactLifecycles.mount];
-
-export const unmount = [cssLifecycles.unmount, reactLifecycles.unmount];
+export { bootstrap, mount, unmount };
 
 // EXPORT components
 export * from "components";
