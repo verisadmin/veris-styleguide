@@ -12,7 +12,7 @@
         "react-router-dom": "^5.2.0",
         "react-select": "^3.1.1",
         "single-spa-css": "^1.0.0",
-        "single-spa-react": "^3.2.0",
+        "single-spa-react": "^4.0.0",
         "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.2"
     },
     "scripts": {
