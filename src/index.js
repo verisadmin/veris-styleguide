@@ -7,10 +7,23 @@ import * as serviceWorker from "./serviceWorker";
 
 //# SSPA
 import singleSpaReact from "single-spa-react";
+import singleSpaCss from "single-spa-css";
 
 import "./index.css";
 
 import App from "./App";
+
+const staticBase = process.env.ASSET_PATH + "static/css/";
+// TODO: explore __webpack_public_path__ mechanism
+// https://github.com/joeldenning/snowpack-single-spa-example/blob/c6e659ea410c87442227abe5cc39cdd05cdb4856/index.js
+// const staticBase =
+//   typeof __webpack_public_path__ !== "undefined"
+//     ? __webpack_public_path__
+//     : import.meta.url.slice(0, import.meta.url.lastIndexOf("/") + 1);
+
+const cssLifecycles = singleSpaCss({
+    cssUrls: [staticBase + "main.styleguide.css"],
+});
 
 serviceWorker.unregister();
 
@@ -25,11 +38,11 @@ const reactLifecycles = singleSpaReact({
     },
 });
 
-export const bootstrap = [reactLifecycles.bootstrap];
+export const bootstrap = [cssLifecycles.bootstrap, reactLifecycles.bootstrap];
 
-export const mount = [reactLifecycles.mount];
+export const mount = [cssLifecycles.mount, reactLifecycles.mount];
 
-export const unmount = [reactLifecycles.unmount];
+export const unmount = [cssLifecycles.unmount, reactLifecycles.unmount];
 
 // EXPORT components
 export * from "components";

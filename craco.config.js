@@ -1,3 +1,5 @@
+const webpack = require("webpack");
+
 // DUMP and check the WEBPACK config
 const { WebpackConfigDumpPlugin } = require("webpack-config-dump-plugin");
 
@@ -13,6 +15,9 @@ const SystemJSPublicPathWebpackPlugin = require("systemjs-webpack-interop/System
 // https://stackoverflow.com/a/41041580/362574
 // remove console prints
 const TerserPlugin = require("terser-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
 
 //new IgnorePlugin(/^\.\/locale$/, /moment$/),
 // const webpack = require("webpack");
@@ -20,9 +25,13 @@ const path = require("path");
 
 const tailwindcss_plugin = require("tailwindcss");
 const autoprefixer_plugin = require("autoprefixer");
+const { icons } = require("antd/lib/image/PreviewGroup");
 
 const ORG_NAME = "veris";
 const APP_NAME = "styleguide";
+
+const isEnvProduction = process.env.NODE_ENV === "production";
+const ASSET_PATH = isEnvProduction ? `/apps/${APP_NAME}/` : "/";
 
 module.exports = {
     style: {
@@ -90,9 +99,6 @@ module.exports = {
     },
     webpack: {
         plugins: [
-            new WebpackConfigDumpPlugin({
-                depth: 8,
-            }),
             // https://github.com/joeldenning/systemjs-webpack-interop#background--other-work
             // https://github.com/systemjs/systemjs#compatibility-with-webpack
             new SystemJSPublicPathWebpackPlugin({
@@ -103,13 +109,73 @@ module.exports = {
                 // ONLY NEEDED FOR WEBPACK 1-4. Not necessary for webpack@5
                 systemjsModuleName: `@${ORG_NAME}/${APP_NAME}`,
             }),
+            new ImageMinimizerPlugin({
+                minimizerOptions: {
+                    // Lossless optimization with custom option
+                    // Feel free to experiment with options for better result for you
+                    plugins: [
+                        ["gifsicle", { interlaced: true }],
+                        ["jpegtran", { progressive: true }],
+                        ["optipng", { optimizationLevel: 5 }],
+                        [
+                            "svgo",
+                            {
+                                plugins: [
+                                    {
+                                        removeViewBox: false,
+                                    },
+                                ],
+                            },
+                        ],
+                    ],
+                },
+            }),
+            new MiniCssExtractPlugin({
+                filename: `static/css/[name].${APP_NAME}.css`,
+                chunkFilename: `static/css/[name].${APP_NAME}.css`,
+            }),
+            new webpack.DefinePlugin({
+                "process.env.ASSET_PATH": JSON.stringify(ASSET_PATH),
+            }),
+            new WebpackConfigDumpPlugin({
+                depth: 8,
+            }),
         ],
         configure: {
             module: {
                 rules: [
                     // https://github.com/systemjs/systemjs#compatibility-with-webpack
-                    { parser: { System: false } },
                     { parser: { system: false } },
+                    // https://webpack.js.org/plugins/image-minimizer-webpack-plugin/#root
+                    {
+                        test: /\.(jpe?g|png|gif|svg)$/i,
+                        exclude: /\assets\/icons/,
+                        use: [
+                            {
+                                loader: path.resolve(
+                                    __dirname,
+                                    "node_modules/file-loader"
+                                ),
+                                // loader: "file-loader", // Or `url-loader` or your other loader
+                            },
+                        ],
+                    },
+                    {
+                        test: /\.(svg)$/i,
+                        include: /\assets\/icons$/,
+                        exclude: /\assets\/images/,
+                        use: [
+                            {
+                                loader: path.resolve(
+                                    __dirname,
+                                    "node_modules/file-loader"
+                                ), // loader: "file-loader", // Or `url-loader` or your other loader
+                                options: {
+                                    name: "assets/icons/[name].[ext]",
+                                },
+                            },
+                        ],
+                    },
                 ],
             },
             externals: [
@@ -129,7 +195,7 @@ module.exports = {
                 filename: `[name].${APP_NAME}.js`,
                 path: path.resolve(__dirname, "build"),
                 crossOriginLoading: "anonymous",
-                publicPath: "/",
+                publicPath: ASSET_PATH,
                 devtoolNamespace: `${APP_NAME}`,
             },
             // https://github.com/single-spa/single-spa/issues/387
@@ -173,14 +239,6 @@ module.exports = {
                     pluginOptions,
                     context: { env, paths },
                 }) => {
-                    // Setting the public path for production system
-                    if (
-                        env === "production" ||
-                        webpackConfig.mode === "production"
-                    ) {
-                        webpackConfig.output.publicPath = `/apps/${APP_NAME}/`;
-                    }
-
                     // https://github.com/single-spa/single-spa/issues/387
                     delete webpackConfig.optimization;
                     webpackConfig.optimization = {};
@@ -193,6 +251,7 @@ module.exports = {
                     ) {
                         webpackConfig.optimization.minimize = true;
                         webpackConfig.optimization.minimizer = [
+                            new CssMinimizerPlugin(),
                             new TerserPlugin({
                                 sourceMap:
                                     process.env.GENERATE_SOURCEMAP === "true"
@@ -207,6 +266,38 @@ module.exports = {
                         ];
                     }
 
+                    // need to deduplicate the webpack plugins
+                    // so as to make sure that the plugin package version matches
+                    // first filter out the plugins that match
+                    webpackConfig.plugins = webpackConfig.plugins.filter(
+                        (plugin) => {
+                            return cracoConfig.webpack.plugins
+                                .map((cp) => {
+                                    return cp.constructor.name;
+                                })
+                                .filter((cpn) => {
+                                    return cpn !== plugin.constructor.name;
+                                });
+                        }
+                    );
+                    // but this generates an array that has multiple entries of the same plugin
+                    // so the following code filters out the repeated entries
+                    let dedupPlugins = [];
+                    for (let i = 0; i < webpackConfig.plugins.length; i++) {
+                        if (
+                            dedupPlugins
+                                .map((p) => p.constructor.name)
+                                .includes(
+                                    webpackConfig.plugins[i].constructor.name
+                                )
+                        ) {
+                            continue;
+                        } else {
+                            dedupPlugins.push(webpackConfig.plugins[i]);
+                        }
+                    }
+                    webpackConfig.plugins = dedupPlugins;
+
                     // ########################################################################
                     // this helps inline the CSS <link> within JS
                     // the single-spa module loads <script> and not <links>
@@ -218,6 +309,7 @@ module.exports = {
                         if (rules[i].oneOf !== undefined) break;
                     }
                     let oneOfs = webpackConfig.module.rules[i].oneOf;
+
                     for (let z = 0; z < oneOfs.length; z++) {
                         let item = oneOfs[z];
                         if (item.test !== undefined) {
@@ -230,10 +322,22 @@ module.exports = {
                                 String(item.test) ===
                                     String(/\.module\.(scss|sass)$/)
                             ) {
-                                item.use[0] = path.resolve(
-                                    __dirname,
-                                    "node_modules/style-loader"
-                                );
+                                // for production env
+                                // try to use MiniCssExtractPlugin
+                                // else use style loader
+                                // have to basially duplicate the implemetation
+                                // of craco, because of the version change
+                                item.use[0] =
+                                    env === "production" ||
+                                    webpackConfig.mode === "production"
+                                        ? {
+                                              loader:
+                                                  MiniCssExtractPlugin.loader,
+                                          }
+                                        : path.resolve(
+                                              __dirname,
+                                              "node_modules/style-loader"
+                                          );
                             }
                         }
                         webpackConfig.module.rules[i].oneOf[z] = item;
