@@ -25,7 +25,6 @@ const path = require("path");
 
 const tailwindcss_plugin = require("tailwindcss");
 const autoprefixer_plugin = require("autoprefixer");
-const { icons } = require("antd/lib/image/PreviewGroup");
 
 const ORG_NAME = "veris";
 const APP_NAME = "styleguide";
