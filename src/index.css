@@ -2,7 +2,7 @@
 @tailwind utilities;
 
 /* ANTD Styling */
-/* @import "./antd.css"; */
+@import "./antd.css";
 
 /* TOOLTIP */
 /* ALREADY included in SSPA CSS */

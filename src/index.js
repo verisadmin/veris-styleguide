@@ -15,15 +15,10 @@ import App from "./App";
 
 const isEnvProduction = process.env.NODE_ENV === "production";
 const staticBase = process.env.ASSET_PATH + "static/css/";
-// TODO: explore __webpack_public_path__ mechanism
-// https://github.com/joeldenning/snowpack-single-spa-example/blob/c6e659ea410c87442227abe5cc39cdd05cdb4856/index.js
-// const staticBase =
-//   typeof __webpack_public_path__ !== "undefined"
-//     ? __webpack_public_path__
-//     : import.meta.url.slice(0, import.meta.url.lastIndexOf("/") + 1);
+const ASSET_UUID = process.env.ASSET_UUID;
 
 const cssLifecycles = singleSpaCss({
-    cssUrls: [staticBase + "main.styleguide.css"],
+    cssUrls: [staticBase + `main.styleguide.${ASSET_UUID}.css`],
 });
 
 serviceWorker.unregister();

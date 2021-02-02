@@ -1,3 +1,11 @@
+const ORG_NAME = "veris";
+const APP_NAME = "styleguide";
+
+const isEnvProduction = process.env.NODE_ENV === "production";
+const ASSET_PATH = isEnvProduction ? `/apps/${APP_NAME}/` : "/";
+
+// COMMON FOR ALL ##############################
+
 const webpack = require("webpack");
 
 // DUMP and check the WEBPACK config
@@ -26,11 +34,9 @@ const path = require("path");
 const tailwindcss_plugin = require("tailwindcss");
 const autoprefixer_plugin = require("autoprefixer");
 
-const ORG_NAME = "veris";
-const APP_NAME = "styleguide";
+// COMMON FOR ALL ##############################
 
-const isEnvProduction = process.env.NODE_ENV === "production";
-const ASSET_PATH = isEnvProduction ? `/apps/${APP_NAME}/` : "/";
+const fileUUID = require("uuid")().slice(0, 8);
 
 module.exports = {
     style: {
@@ -98,6 +104,15 @@ module.exports = {
     },
     webpack: {
         plugins: [
+            // webpack define plugin would overwrite
+            // any env vars
+            // so it's important to unpack the existing process.env
+            new webpack.DefinePlugin({
+                "process.env.ASSET_UUID": JSON.stringify(fileUUID),
+                "process.env.ASSET_PATH": JSON.stringify(ASSET_PATH),
+                "process.env": JSON.stringify(process.env),
+            }),
+
             // https://github.com/joeldenning/systemjs-webpack-interop#background--other-work
             // https://github.com/systemjs/systemjs#compatibility-with-webpack
             new SystemJSPublicPathWebpackPlugin({
@@ -108,6 +123,7 @@ module.exports = {
                 // ONLY NEEDED FOR WEBPACK 1-4. Not necessary for webpack@5
                 systemjsModuleName: `@${ORG_NAME}/${APP_NAME}`,
             }),
+
             new ImageMinimizerPlugin({
                 minimizerOptions: {
                     // Lossless optimization with custom option
@@ -129,13 +145,12 @@ module.exports = {
                     ],
                 },
             }),
+
             new MiniCssExtractPlugin({
-                filename: `static/css/[name].${APP_NAME}.css`,
-                chunkFilename: `static/css/[name].${APP_NAME}.css`,
+                filename: `static/css/[name].${APP_NAME}.${fileUUID}.css`,
+                chunkFilename: `static/css/[name].${APP_NAME}.${fileUUID}.css`,
             }),
-            new webpack.DefinePlugin({
-                "process.env.ASSET_PATH": JSON.stringify(ASSET_PATH),
-            }),
+
             new WebpackConfigDumpPlugin({
                 depth: 8,
             }),
